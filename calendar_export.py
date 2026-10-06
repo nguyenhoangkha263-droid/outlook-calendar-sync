@@ -5,7 +5,8 @@ import uuid
 
 OUTPUT_FILE = r"calendar.ics"
 
-# number of days to export into the future
+# number of days to export into the future and the past
+DAYS_BACK = 7
 DAYS_AHEAD = 30
 
 outlook = win32com.client.Dispatch("Outlook.Application")
@@ -14,8 +15,25 @@ namespace = outlook.GetNamespace("MAPI")
 # 9 = Calendar
 calendar = namespace.GetDefaultFolder(9)
 
-start = datetime.now()
-end = start + timedelta(days=DAYS_AHEAD)
+# start = datetime.now() - timedelta(days=DAYS_BACK)
+# end = start + timedelta(days=DAYS_BACK + DAYS_AHEAD)
+start = (
+        datetime.now() - timedelta(days=DAYS_BACK)
+        ).replace(
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0
+        )
+
+end = (
+        datetime.now() + timedelta(days=DAYS_AHEAD)
+        ).replace(
+            hour=23,
+            minute=59,
+            second=59,
+            microsecond=999999
+        )
 
 restriction = (
     "[Start] >= '{}'"
