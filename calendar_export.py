@@ -53,7 +53,6 @@ def ics_escape(text):
     )
 
 for appt in appointments:
-
     try:
         start_dt = appt.Start
         end_dt = appt.End
@@ -63,40 +62,42 @@ for appt in appointments:
 
         subject = str(appt.Subject or "")
         location = str(appt.Location or "")
-        organizer = str(appt.Organizer or "")
-        body = ""
 
         try:
-            body = str(appt.Body or "")
+            base_uid = str(appt.GlobalAppointmentID)
         except Exception:
-            pass
+            base_uid = str(appt.EntryID)
 
-        try:
-            uid = str(appt.GlobalAppointmentID)
-        except:
-            uid = str(appt.EntryID)
+        occurrence_key = start_dt.strftime("%Y%m%dT%H%M%S")
+        uid = f"{base_uid}-{occurrence_key}@outlook-calendar-sync"
 
         lines.extend([
             "BEGIN:VEVENT",
             f"UID:{uid}",
-            f"DTSTAMP:{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}",
             f"DTSTART:{start_str}",
             f"DTEND:{end_str}",
             f"SUMMARY:{ics_escape(subject)}",
             f"LOCATION:{ics_escape(location)}",
-            # f"ORGANIZER:{ics_escape(organizer)}",
-            # f"DESCRIPTION:{ics_escape(body)}",
-            "END:VEVENT"
+            "END:VEVENT",
         ])
 
     except Exception as ex:
         print("Skip:", ex)
 
+
 lines.append("END:VCALENDAR")
 
-Path(OUTPUT_FILE).write_text(
-    "\r\n".join(lines),
-    encoding="utf-8"
-)
+old_content = ""
+
+if Path(OUTPUT_FILE).exists():
+    old_content = Path(OUTPUT_FILE).read_text(encoding="utf-8")
+
+new_content = "\r\n".join(lines)
+
+if new_content != old_content:
+    Path(OUTPUT_FILE).write_text(new_content, encoding="utf-8")
+    print("Calendar updated")
+else:
+    print("No changes")
 
 print(f"ICS exported: {OUTPUT_FILE}")
