@@ -327,6 +327,9 @@ No update to commit
 ## Create Scheduled Task
 
 Run:
+```bash
+setup.bat
+```
 
 ```cmd
 schtasks /create ^
