@@ -17,7 +17,7 @@ REM If there are no staged changes, skip the commit
 if %errorlevel%==0 goto END_SCRIPT
 
 REM Commit and push the changes if there are any
-git commit -m "Update calendar.ics"
+git commit -m "Update calendar.ics - %date% %time%"
 git push
 
 :END_SCRIPT
